@@ -1,9 +1,9 @@
 def call() {
   node() {
 
-    stage ('Download Dependencies') {
+    stage('Download Dependencies'){
       sh '''
-        ls -l
+        ls -ltr
         npm install
       '''
     }
