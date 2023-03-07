@@ -21,7 +21,7 @@ def publishArtifacts() {
     }
     if (env.APP_TYPE == "python") {
       sh '''
-        zip -r ${COMPONENT}-${TAG_NAME}.zip *.py ${payment}.ini requirements.txt
+        zip -r ${COMPONENT}-${TAG_NAME}.zip *.py ${COMPONENT}.ini requirements.txt
        '''
     }
     if (env.APP_TYPE == "nginx") {
