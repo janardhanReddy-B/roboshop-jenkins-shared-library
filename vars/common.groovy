@@ -32,7 +32,7 @@ def publishArtifacts() {
     }
   }
 
-  stage ('push Artifacts to nexus') {
+  stage('push Artifacts to nexus') {
     withCredentials([usernamePassword(credentialsId: 'NEXUSP', passwordVariable: 'pass', usernameVariable: 'user')]) {
       sh '''
         curl -v -u admin:admin123 --upload-file ${COMPONENT}-${TAG_NAME}.zip http://172.31.7.163:8081/repository/${COMPONENT}/${COMPONENT}-${TAG_NAME}.zip 
@@ -45,7 +45,11 @@ def codeChecks() {
   stage('Quality Checks & unit tests') {
     parallel([
       QualityChecks: {
-        echo "hello"
+        withCredentials([usernamePassword(credentialsId: 'SONAR', passwordVariable: 'pass', usernameVariable: 'user')]) {
+           sh "sonar-scanner -Dsonar.projectKey=${COMPONENT} -Dsonar.host.url=http://172.31.8.54:9000 -Dsonar.login=${user} -Dsonar.password=${pass} "
+          //sh "sonar-quality-gate.sh ${user} ${pass} 172.31.14.79 ${COMPONENT}"
+
+        }
       },
       unitTests: {
         unitTests()
@@ -54,7 +58,6 @@ def codeChecks() {
 
   }
 }
-
 
 def unitTests() {
     if (env.APP_TYPE == "nodejs") {
@@ -81,6 +84,4 @@ def unitTests() {
         echo Run test cases
        '''
     }
-
-
 }
