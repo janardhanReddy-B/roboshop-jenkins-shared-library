@@ -35,13 +35,28 @@ def publishArtifacts() {
 
   stage('push Artifacts to nexus') {
     withCredentials([usernamePassword(credentialsId: 'NEXUSP', passwordVariable: 'pass', usernameVariable: 'user')]) {
-      sh '''
+      sh """
         curl -v -u admin:admin123 --upload-file ${ENV}-${COMPONENT}-${TAG_NAME}.zip http://172.31.7.163:8081/repository/${COMPONENT}/${ENV}-${COMPONENT}-${TAG_NAME}.zip 
-      '''
+      """
     }
   }
   stage(' Deploy to Dev Env')
   build job: 'deploy-to-any-env', parameters: [string(name: 'COMPONENT', value: "${COMPONENT}"), string(name: 'ENV', value: "${ENV}"), string(name: 'APP_VERSION', value: "${TAG_NAME}")]
+
+  stage('Run Somke Tests') {
+    sh "echo Somke Tests"
+  }
+
+  promoteRelease("dev","qa")
+}
+
+def promoteRelease(SOURCE_ENV,ENV) {
+  withCredentials([usernamePassword(credentialsId: 'NEXUSP', passwordVariable: 'pass', usernameVariable: 'user')]) {
+    sh """
+      cp ${SOURCE_ENV}-${COMPONENT}-${TAG_NAME}.zip ${ENV}-${COMPONENT}-${TAG_NAME}.zip
+      curl -v -u ${user}:${pass} --upload-file ${ENV}-${COMPONENT}-${TAG_NAME}.zip http://172.31.7.163:8081/repository/${COMPONENT}/${ENV}-${COMPONENT}-${TAG_NAME}.zip 
+      """
+  }
 
 }
 
