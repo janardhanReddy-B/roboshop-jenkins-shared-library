@@ -48,6 +48,39 @@ def publishArtifacts() {
   }
 
   promoteRelease("dev","qa")
+
+
+  stage(' Deploy to QA Env') {
+    //  build job: 'deploy-to-any-env', parameters: [string(name: 'COMPONENT', value: "${COMPONENT}"), string(name: 'ENV', value: "${ENV}"), string(name: 'APP_VERSION', value: "${TAG_NAME}")]
+    echo 'QA Deploy'
+  }
+
+  TestRuns()
+
+  stage('Run Somke Tests') {
+    sh "echo Somke Tests"
+  }
+
+  promoteRelease("qa","prod")
+
+}
+
+def TestRuns() {
+  stage('Quality Checks & unit tests') {
+    parallel([
+      intergrationTests: {
+        echo 'IntegrationTests'
+      },
+      e2eTests: {
+        echo 'e2eTests'
+      },
+      PenTests: {
+        echo 'penTests'
+      }
+
+    ])
+
+  }
 }
 
 def promoteRelease(SOURCE_ENV,ENV) {
