@@ -5,6 +5,7 @@ def call() {
                     choice(choices: ['dev', 'prod'], description: "Choose Environment", name: "ENV"),
                     choice(choices: ['apply', 'destroy'], description: "Choose Action", name: "ACTION"),
             ])
+
     ])
 
     ansiColor('xterm') {
