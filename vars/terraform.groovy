@@ -1,16 +1,29 @@
 def call() {
-  node () {
+  node {
+    properties([
+            parameters([
+                    choice(choices: ['dev', 'prod'], description: "Choose Environment", name: "ENV"),
+                    choice(choices: ['apply', 'destroy'], description: "Choose Action", name: "ACTION"),
+            ])
+    ])
+
     ansiColor('xterm') {
+
+      stage('Code Checkout') {
+        sh 'find . | sed -e "1d" | xargs rm -rf'
+        git branch: 'main', url: "https://github.com/janardhanReddy-B/${REPO_NAME}.git"
+      }
+
       stage('Terraform INIT') {
-        sh "terraform init"
+        sh 'terraform init -backend-config=env/${ENV}-backend.tfvars'
       }
 
-      stage('Terrafrom plan') {
-        sh "terraform plan"
+      stage('Terraform Plan') {
+        sh 'terraform plan -var-file=env/${ENV}.tfvars'
       }
 
-      stage('Terrafrom Apply') {
-        sh "terraform apply -auto-approve"
+      stage("Terraform ${ACTION}") {
+        sh 'terraform ${ACTION} -auto-approve -var-file=env/${ENV}.tfvars'
       }
     }
   }
