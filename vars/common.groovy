@@ -5,8 +5,6 @@ def pipelineinit() {
   }
 
 }
-
-
 def publishArtifacts() {
   env.ENV ="dev"
   stage('prepare Artifacts') {
